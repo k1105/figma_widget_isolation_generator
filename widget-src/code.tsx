@@ -1,5 +1,5 @@
 const { widget } = figma;
-const { useSyncedState, AutoLayout, Text, Rectangle, Frame } = widget;
+const { useSyncedState, usePropertyMenu, useEffect, AutoLayout, Text } = widget;
 
 import { NodeRow } from "./components/NodeRow";
 import { getScaleToFitContainer } from "../lib/getScaleToFitContainer";
@@ -28,6 +28,36 @@ function IsolationManager() {
     "listBoxScale",
     1
   );
+
+  const [masterOptions, setMasterOptions] = useSyncedState<
+    { option: string; label: string }[]
+  >("masterOptions", []);
+
+  if (masterOptions.length > 0) {
+    usePropertyMenu(
+      [
+        {
+          itemType: "action",
+          tooltip: "Set master",
+          propertyName: "Label",
+        },
+        {
+          itemType: "dropdown",
+          propertyName: "SetMaster",
+          tooltip: "Font selector",
+          selectedOption: masterOptions[masterNodeIndex].option,
+          options: masterOptions,
+        },
+      ],
+      ({ propertyName, propertyValue }) => {
+        if (propertyName === "SetMaster") {
+          console.log(propertyValue);
+          setMasterNodeIndex(Number(propertyValue));
+        }
+      }
+    );
+  }
+
   return (
     <AutoLayout name="IsolationManager" fill="#FFF" spacing={30} padding={30}>
       {registeredNodes.length == 0 ? (
@@ -81,6 +111,12 @@ function IsolationManager() {
               });
             }
             setRegisteredNodes(nodes);
+
+            const options: { option: string; label: string }[] = [];
+            nodes.forEach((node, index) => {
+              options.push({ option: String(index), label: node.name });
+            });
+            setMasterOptions(options);
           }}
         >
           Load Selected Nodes
@@ -100,13 +136,11 @@ function IsolationManager() {
                 row = (
                   <NodeRow
                     active={activeNodeIndex == index ? true : false}
-                    master={masterNodeIndex == index ? true : false}
                     setActiveNodeIndex={setActiveNodeIndex}
                     index={index}
                     width={node.boundingBox.width * listBoxScale}
                     height={node.boundingBox.height * listBoxScale}
                     name={node.name}
-                    setMasterNodeIndex={setMasterNodeIndex}
                     key={index}
                   />
                 );

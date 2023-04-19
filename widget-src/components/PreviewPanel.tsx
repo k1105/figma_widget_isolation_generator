@@ -205,6 +205,28 @@ export function PreviewPanel({ masterNode, activeNode }: Props) {
         >
           (px)
         </Text>
+        <Text
+          name="x"
+          fill="#000"
+          width={14}
+          height={30}
+          verticalAlignText="center"
+          fontFamily="Inter"
+          fontSize={18}
+        >
+          x
+        </Text>
+        <Text
+          name="2"
+          fill="#000"
+          width={30}
+          height={30}
+          verticalAlignText="center"
+          fontFamily="Inter"
+          fontSize={18}
+        >
+          2
+        </Text>
       </AutoLayout>
       <Text
         name="MasterInformaiton"

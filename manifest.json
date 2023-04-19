@@ -1,0 +1,13 @@
+{
+  "name": "IsolationGenerator",
+  "id": "1230138351588699625",
+  "api": "1.0.0",
+  "main": "dist/code.js",
+  "capabilities": [],
+  "enableProposedApi": false,
+  "editorType": [
+    "figma"
+  ],
+  "containsWidget": true,
+  "widgetApi": "1.0.0"
+}

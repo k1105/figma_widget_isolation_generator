@@ -12,13 +12,10 @@ export const getScaleToFitContainer = (
 
   const maxWidth = Math.max(...width_list);
   const maxHeight = Math.max(...height_list);
-  console.log(maxWidth);
-  console.log(maxHeight);
   const scale = Math.min(
     container.width / maxWidth,
     container.height / maxHeight
   );
-  console.log(scale);
 
   return scale;
 };

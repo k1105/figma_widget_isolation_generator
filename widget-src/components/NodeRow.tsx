@@ -1,5 +1,5 @@
 const { widget } = figma;
-const { Rectangle, Frame, AutoLayout, Text, Ellipse } = widget;
+const { Rectangle, AutoLayout, Text } = widget;
 
 type Props = {
   active: boolean;

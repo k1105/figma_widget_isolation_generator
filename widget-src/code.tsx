@@ -9,6 +9,7 @@ type NodeProperty = {
   id: string;
   name: string;
   boundingBox: { width: number; height: number };
+  isolationScale: number;
 };
 
 function IsolationManager() {
@@ -64,8 +65,10 @@ function IsolationManager() {
         <></>
       ) : (
         <PreviewPanel
-          masterNode={registeredNodes[masterNodeIndex]}
-          activeNode={registeredNodes[activeNodeIndex]}
+          masterNodeIndex={masterNodeIndex}
+          activeNodeIndex={activeNodeIndex}
+          registeredNodes={registeredNodes}
+          setRegisteredNodes={setRegisteredNodes}
         />
       )}
       <AutoLayout
@@ -108,6 +111,7 @@ function IsolationManager() {
                   width: node.width,
                   height: node.height,
                 },
+                isolationScale: 1,
               });
             }
             setRegisteredNodes(nodes);

@@ -4,24 +4,58 @@ const { AutoLayout, Text, Rectangle, Frame, useSyncedState, Input } = widget;
 import { IsolationUnit } from "./IsolationUnit";
 import { SideIsolationUnit } from "./SideIsolationUnit";
 import { BottomIsolationUnit } from "./BottomIsolationUnit";
+import { getScaleToFitContainer } from "../../lib/getScaleToFitContainer";
 
 type NodeProperty = {
   id: string;
   name: string;
   boundingBox: { width: number; height: number };
+  isolationScale: number;
 };
 
 type Props = {
-  masterNode: NodeProperty;
-  activeNode: NodeProperty;
+  masterNodeIndex: number;
+  activeNodeIndex: number;
+  registeredNodes: NodeProperty[];
+  setRegisteredNodes: (
+    newValue: NodeProperty[] | ((currValue: NodeProperty[]) => NodeProperty[])
+  ) => void;
 };
 
-export function PreviewPanel({ masterNode, activeNode }: Props) {
-  const [iteration, setIteration] = useSyncedState<number>("iteration", 1);
+export function PreviewPanel({
+  masterNodeIndex,
+  activeNodeIndex,
+  registeredNodes,
+  setRegisteredNodes,
+}: Props) {
+  const rectangleWidth = registeredNodes[activeNodeIndex].boundingBox.width;
+  const rectangleHeight = registeredNodes[activeNodeIndex].boundingBox.height;
   const [isolationUnitSize, setIsolationUnitSize] = useSyncedState<string>(
     "isolationUnitSize",
-    "0"
+    "100"
   ); //width, heightなどの独自変数を使用する都合上、numberではなくstringを使用して後処理でstringに変換する
+
+  // previewBoxScaleの初期化処理
+  const boxes: { width: number; height: number }[] = []; //isolationを含むボックスのサイズを格納するための空配列を定義
+  for (let node of registeredNodes) {
+    boxes.push({
+      //isolationを含むボックスサイズ = 左右（または上下）に（単位長） * (isolationのスケール)
+      width:
+        node.boundingBox.width +
+        2 * Number(isolationUnitSize) * node.isolationScale,
+      height:
+        node.boundingBox.height +
+        2 * Number(isolationUnitSize) * node.isolationScale,
+    });
+  }
+  const [scale, setScale] = useSyncedState<number>(
+    "scale",
+    getScaleToFitContainer(boxes, {
+      width: 450,
+      height: 350,
+    })
+  );
+
   return (
     <AutoLayout
       name="PreviewPanel"
@@ -64,97 +98,164 @@ export function PreviewPanel({ masterNode, activeNode }: Props) {
           >
             <Rectangle
               name="BoundingBox"
-              x={55.526}
-              y={55.526}
+              x={
+                Number(isolationUnitSize) *
+                registeredNodes[activeNodeIndex].isolationScale *
+                scale
+              }
+              y={
+                Number(isolationUnitSize) *
+                registeredNodes[activeNodeIndex].isolationScale *
+                scale
+              }
               stroke="#000"
               strokeAlign="center"
-              width={310.947}
-              height={202.274}
+              width={rectangleWidth * scale}
+              height={rectangleHeight * scale}
             />
-            <Frame
+            <IsolationUnit
+              width={
+                Number(isolationUnitSize) *
+                registeredNodes[activeNodeIndex].isolationScale *
+                scale
+              }
+              height={
+                Number(isolationUnitSize) *
+                registeredNodes[activeNodeIndex].isolationScale *
+                scale
+              }
+            />
+            <IsolationUnit
               name="IsolationUnit"
-              overflow="visible"
-              width={55.526}
-              height={55.526}
-            >
-              <Rectangle
-                name="IsolationUnit"
-                x={{
-                  type: "horizontal-scale",
-                  leftOffsetPercent: 0,
-                  rightOffsetPercent: 0,
-                }}
-                y={{
-                  type: "vertical-scale",
-                  topOffsetPercent: 0,
-                  bottomOffsetPercent: 0,
-                }}
-                stroke="#000"
-                strokeAlign="center"
-                width={55.526}
-                height={55.526}
-              />
-            </Frame>
-            <IsolationUnit name="IsolationUnit" x={366.474} />
-            <IsolationUnit name="IsolationUnit" y={257.801} />
-            <IsolationUnit name="IsolationUnit" x={366.474} y={257.801} />
-            <Frame
-              name="SideIsolationUnit"
-              y={55.526}
-              overflow="visible"
-              width={55.526}
-              height={202.274}
-            >
-              <Rectangle
-                name="SideIsolationUnit"
-                x={{
-                  type: "horizontal-scale",
-                  leftOffsetPercent: 0,
-                  rightOffsetPercent: 0,
-                }}
-                y={{
-                  type: "vertical-scale",
-                  topOffsetPercent: 0,
-                  bottomOffsetPercent: 0,
-                }}
-                stroke="#000"
-                strokeAlign="center"
-                width={55.526}
-                height={202.274}
-              />
-            </Frame>
+              x={
+                rectangleWidth * scale +
+                Number(isolationUnitSize) *
+                  registeredNodes[activeNodeIndex].isolationScale *
+                  scale
+              }
+              width={
+                Number(isolationUnitSize) *
+                registeredNodes[activeNodeIndex].isolationScale *
+                scale
+              }
+              height={
+                Number(isolationUnitSize) *
+                registeredNodes[activeNodeIndex].isolationScale *
+                scale
+              }
+            />
+            <IsolationUnit
+              name="IsolationUnit"
+              y={
+                rectangleHeight * scale +
+                Number(isolationUnitSize) *
+                  registeredNodes[activeNodeIndex].isolationScale *
+                  scale
+              }
+              width={
+                Number(isolationUnitSize) *
+                registeredNodes[activeNodeIndex].isolationScale *
+                scale
+              }
+              height={
+                Number(isolationUnitSize) *
+                registeredNodes[activeNodeIndex].isolationScale *
+                scale
+              }
+            />
+            <IsolationUnit
+              name="IsolationUnit"
+              x={
+                rectangleWidth * scale +
+                Number(isolationUnitSize) *
+                  registeredNodes[activeNodeIndex].isolationScale *
+                  scale
+              }
+              y={
+                rectangleHeight * scale +
+                Number(isolationUnitSize) *
+                  registeredNodes[activeNodeIndex].isolationScale *
+                  scale
+              }
+              width={
+                Number(isolationUnitSize) *
+                registeredNodes[activeNodeIndex].isolationScale *
+                scale
+              }
+              height={
+                Number(isolationUnitSize) *
+                registeredNodes[activeNodeIndex].isolationScale *
+                scale
+              }
+            />
             <SideIsolationUnit
               name="SideIsolationUnit"
-              x={366.474}
-              y={55.526}
+              y={
+                Number(isolationUnitSize) *
+                registeredNodes[activeNodeIndex].isolationScale *
+                scale
+              }
+              width={
+                Number(isolationUnitSize) *
+                registeredNodes[activeNodeIndex].isolationScale *
+                scale
+              }
+              height={rectangleHeight * scale}
             />
-            <Frame
+            <SideIsolationUnit
+              name="SideIsolationUnit"
+              x={
+                rectangleWidth * scale +
+                Number(isolationUnitSize) *
+                  registeredNodes[activeNodeIndex].isolationScale *
+                  scale
+              }
+              y={
+                Number(isolationUnitSize) *
+                registeredNodes[activeNodeIndex].isolationScale *
+                scale
+              }
+              width={
+                Number(isolationUnitSize) *
+                registeredNodes[activeNodeIndex].isolationScale *
+                scale
+              }
+              height={rectangleHeight * scale}
+            />
+            <BottomIsolationUnit
               name="BottomIsolationUnit"
-              x={55.526}
-              y={257.801}
-              overflow="visible"
-              width={310.947}
-              height={55.526}
-            >
-              <Rectangle
-                name="BottomIsolationUnit"
-                x={{
-                  type: "horizontal-scale",
-                  leftOffsetPercent: 0,
-                  rightOffsetPercent: 0,
-                }}
-                y={{
-                  type: "vertical-scale",
-                  topOffsetPercent: 0,
-                  bottomOffsetPercent: 0,
-                }}
-                stroke="#000"
-                strokeAlign="center"
-                width={310.947}
-                height={55.526}
-              />
-            </Frame>
-            <BottomIsolationUnit name="BottomIsolationUnit" x={55.526} />
+              x={
+                Number(isolationUnitSize) *
+                registeredNodes[activeNodeIndex].isolationScale *
+                scale
+              }
+              y={
+                rectangleHeight * scale +
+                Number(isolationUnitSize) *
+                  registeredNodes[activeNodeIndex].isolationScale *
+                  scale
+              }
+              width={rectangleWidth * scale}
+              height={
+                Number(isolationUnitSize) *
+                registeredNodes[activeNodeIndex].isolationScale *
+                scale
+              }
+            />
+            <BottomIsolationUnit
+              name="BottomIsolationUnit"
+              x={
+                Number(isolationUnitSize) *
+                registeredNodes[activeNodeIndex].isolationScale *
+                scale
+              }
+              width={rectangleWidth * scale}
+              height={
+                Number(isolationUnitSize) *
+                registeredNodes[activeNodeIndex].isolationScale *
+                scale
+              }
+            />
           </Frame>
         </AutoLayout>
         <Text
@@ -166,7 +267,8 @@ export function PreviewPanel({ masterNode, activeNode }: Props) {
           fontFamily="Inter"
           fontSize={12}
         >
-          {activeNode.boundingBox.width} x {activeNode.boundingBox.height} (px)
+          {registeredNodes[activeNodeIndex].boundingBox.width} x{" "}
+          {registeredNodes[activeNodeIndex].boundingBox.height} (px)
         </Text>
       </AutoLayout>
       <AutoLayout name="IsolationEditor" fill="#FFF" spacing={20}>
@@ -192,6 +294,23 @@ export function PreviewPanel({ masterNode, activeNode }: Props) {
           fontSize={18}
           onTextEditEnd={(e) => {
             setIsolationUnitSize(e.characters);
+            const newIsolationUnitSize = Number(isolationUnitSize);
+            const boxes: { width: number; height: number }[] = [];
+            for (const node of registeredNodes) {
+              boxes.push({
+                width:
+                  node.boundingBox.width +
+                  2 * newIsolationUnitSize * node.isolationScale,
+                height:
+                  node.boundingBox.height +
+                  2 * newIsolationUnitSize * node.isolationScale,
+              });
+            }
+            const newScale = getScaleToFitContainer(boxes, {
+              width: 450,
+              height: 350,
+            });
+            setScale(newScale);
           }}
         />
         <Text
@@ -216,7 +335,7 @@ export function PreviewPanel({ masterNode, activeNode }: Props) {
         >
           x
         </Text>
-        <Input
+        <Input //isolationとして、単位長の何倍を指定するか、を設定するインプットフォーム
           name="number"
           fill="#000"
           width={30}
@@ -224,9 +343,28 @@ export function PreviewPanel({ masterNode, activeNode }: Props) {
           verticalAlignText="center"
           fontFamily="Inter"
           fontSize={18}
-          value={String(iteration)}
+          value={String(registeredNodes[activeNodeIndex].isolationScale)}
           onTextEditEnd={(e) => {
-            setIteration(Number(e.characters));
+            // isolationScaleの更新処理
+            const newNodes: NodeProperty[] = registeredNodes.concat();
+            newNodes[activeNodeIndex].isolationScale = Number(e.characters);
+            setRegisteredNodes(newNodes);
+            const boxes: { width: number; height: number }[] = [];
+            for (let node of newNodes) {
+              boxes.push({
+                width:
+                  node.boundingBox.width +
+                  2 * Number(isolationUnitSize) * node.isolationScale,
+                height:
+                  node.boundingBox.height +
+                  2 * Number(isolationUnitSize) * node.isolationScale,
+              });
+            }
+            const newScale = getScaleToFitContainer(boxes, {
+              width: 450,
+              height: 350,
+            });
+            setScale(newScale);
           }}
         />
       </AutoLayout>
@@ -239,8 +377,8 @@ export function PreviewPanel({ masterNode, activeNode }: Props) {
         fontFamily="Inter"
         fontSize={18}
       >
-        master: {masterNode.boundingBox.width} x {masterNode.boundingBox.height}{" "}
-        (px)
+        master: {registeredNodes[masterNodeIndex].boundingBox.width} x{" "}
+        {registeredNodes[masterNodeIndex].boundingBox.height} (px)
       </Text>
       <AutoLayout
         name="Frame 14"

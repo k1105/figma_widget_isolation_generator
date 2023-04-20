@@ -17,6 +17,7 @@ type Props = {
 };
 
 export function PreviewPanel({ masterNode, activeNode }: Props) {
+  const [iteration, setIteration] = useSyncedState<number>("iteration", 1);
   const [isolationUnitSize, setIsolationUnitSize] = useSyncedState<string>(
     "isolationUnitSize",
     "0"
@@ -183,7 +184,6 @@ export function PreviewPanel({ masterNode, activeNode }: Props) {
         <Input
           name="value"
           value={isolationUnitSize}
-          placeholder="isolation size"
           fill="#000"
           width={96}
           height={31}
@@ -216,17 +216,19 @@ export function PreviewPanel({ masterNode, activeNode }: Props) {
         >
           x
         </Text>
-        <Text
-          name="2"
+        <Input
+          name="number"
           fill="#000"
           width={30}
           height={30}
           verticalAlignText="center"
           fontFamily="Inter"
           fontSize={18}
-        >
-          2
-        </Text>
+          value={String(iteration)}
+          onTextEditEnd={(e) => {
+            setIteration(Number(e.characters));
+          }}
+        />
       </AutoLayout>
       <Text
         name="MasterInformaiton"

@@ -1,10 +1,8 @@
 const { widget } = figma;
 const { AutoLayout, Text, Rectangle, Frame, useSyncedState, Input } = widget;
 
-import { IsolationUnit } from "./IsolationUnit";
-import { SideIsolationUnit } from "./SideIsolationUnit";
-import { BottomIsolationUnit } from "./BottomIsolationUnit";
 import { getScaleToFitContainer } from "../../lib/getScaleToFitContainer";
+import { PreviewRectangle } from "./PreviewRectangle";
 
 type NodeProperty = {
   id: string;
@@ -89,174 +87,12 @@ export function PreviewPanel({
           verticalAlignItems="center"
           horizontalAlignItems="center"
         >
-          <Frame
-            name="Group"
-            strokeWidth={0}
-            overflow="visible"
-            width={422}
-            height={313.327}
-          >
-            <Rectangle
-              name="BoundingBox"
-              x={
-                Number(isolationUnitSize) *
-                registeredNodes[activeNodeIndex].isolationScale *
-                scale
-              }
-              y={
-                Number(isolationUnitSize) *
-                registeredNodes[activeNodeIndex].isolationScale *
-                scale
-              }
-              stroke="#000"
-              strokeAlign="center"
-              width={rectangleWidth * scale}
-              height={rectangleHeight * scale}
-            />
-            <IsolationUnit
-              width={
-                Number(isolationUnitSize) *
-                registeredNodes[activeNodeIndex].isolationScale *
-                scale
-              }
-              height={
-                Number(isolationUnitSize) *
-                registeredNodes[activeNodeIndex].isolationScale *
-                scale
-              }
-            />
-            <IsolationUnit
-              name="IsolationUnit"
-              x={
-                rectangleWidth * scale +
-                Number(isolationUnitSize) *
-                  registeredNodes[activeNodeIndex].isolationScale *
-                  scale
-              }
-              width={
-                Number(isolationUnitSize) *
-                registeredNodes[activeNodeIndex].isolationScale *
-                scale
-              }
-              height={
-                Number(isolationUnitSize) *
-                registeredNodes[activeNodeIndex].isolationScale *
-                scale
-              }
-            />
-            <IsolationUnit
-              name="IsolationUnit"
-              y={
-                rectangleHeight * scale +
-                Number(isolationUnitSize) *
-                  registeredNodes[activeNodeIndex].isolationScale *
-                  scale
-              }
-              width={
-                Number(isolationUnitSize) *
-                registeredNodes[activeNodeIndex].isolationScale *
-                scale
-              }
-              height={
-                Number(isolationUnitSize) *
-                registeredNodes[activeNodeIndex].isolationScale *
-                scale
-              }
-            />
-            <IsolationUnit
-              name="IsolationUnit"
-              x={
-                rectangleWidth * scale +
-                Number(isolationUnitSize) *
-                  registeredNodes[activeNodeIndex].isolationScale *
-                  scale
-              }
-              y={
-                rectangleHeight * scale +
-                Number(isolationUnitSize) *
-                  registeredNodes[activeNodeIndex].isolationScale *
-                  scale
-              }
-              width={
-                Number(isolationUnitSize) *
-                registeredNodes[activeNodeIndex].isolationScale *
-                scale
-              }
-              height={
-                Number(isolationUnitSize) *
-                registeredNodes[activeNodeIndex].isolationScale *
-                scale
-              }
-            />
-            <SideIsolationUnit
-              name="SideIsolationUnit"
-              y={
-                Number(isolationUnitSize) *
-                registeredNodes[activeNodeIndex].isolationScale *
-                scale
-              }
-              width={
-                Number(isolationUnitSize) *
-                registeredNodes[activeNodeIndex].isolationScale *
-                scale
-              }
-              height={rectangleHeight * scale}
-            />
-            <SideIsolationUnit
-              name="SideIsolationUnit"
-              x={
-                rectangleWidth * scale +
-                Number(isolationUnitSize) *
-                  registeredNodes[activeNodeIndex].isolationScale *
-                  scale
-              }
-              y={
-                Number(isolationUnitSize) *
-                registeredNodes[activeNodeIndex].isolationScale *
-                scale
-              }
-              width={
-                Number(isolationUnitSize) *
-                registeredNodes[activeNodeIndex].isolationScale *
-                scale
-              }
-              height={rectangleHeight * scale}
-            />
-            <BottomIsolationUnit
-              name="BottomIsolationUnit"
-              x={
-                Number(isolationUnitSize) *
-                registeredNodes[activeNodeIndex].isolationScale *
-                scale
-              }
-              y={
-                rectangleHeight * scale +
-                Number(isolationUnitSize) *
-                  registeredNodes[activeNodeIndex].isolationScale *
-                  scale
-              }
-              width={rectangleWidth * scale}
-              height={
-                Number(isolationUnitSize) *
-                registeredNodes[activeNodeIndex].isolationScale *
-                scale
-              }
-            />
-            <BottomIsolationUnit
-              name="BottomIsolationUnit"
-              x={
-                Number(isolationUnitSize) *
-                registeredNodes[activeNodeIndex].isolationScale *
-                scale
-              }
-              width={rectangleWidth * scale}
-              height={
-                Number(isolationUnitSize) *
-                registeredNodes[activeNodeIndex].isolationScale *
-                scale
-              }
-            />
-          </Frame>
+          <PreviewRectangle
+            width={rectangleWidth * scale}
+            height={rectangleHeight * scale}
+            unitSize={Number(isolationUnitSize) * scale}
+            multiply={registeredNodes[activeNodeIndex].isolationScale}
+          />
         </AutoLayout>
         <Text
           name="size"

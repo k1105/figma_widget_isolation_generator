@@ -1,5 +1,5 @@
 const { widget } = figma;
-const { useSyncedState, usePropertyMenu, useEffect, AutoLayout, Text } = widget;
+const { useSyncedState, usePropertyMenu, AutoLayout, Text } = widget;
 
 import { NodeRow } from "./components/NodeRow";
 import { getScaleToFitContainer } from "../lib/getScaleToFitContainer";
@@ -62,7 +62,65 @@ function IsolationManager() {
   return (
     <AutoLayout name="IsolationManager" fill="#FFF" spacing={30} padding={30}>
       {registeredNodes.length == 0 ? (
-        <></>
+        <>
+          <AutoLayout
+            name="Frame13"
+            fill="#000"
+            cornerRadius={10}
+            direction="vertical"
+            padding={10}
+            horizontalAlignItems="end"
+            onClick={() => {
+              const selectedNodes = figma.currentPage.selection.concat(); //複製
+              console.log(selectedNodes);
+              const nodes: NodeProperty[] = [];
+              const originalBoundingBoxes: { width: number; height: number }[] =
+                [];
+              for (const node of selectedNodes) {
+                originalBoundingBoxes.push({
+                  width: node.width,
+                  height: node.height,
+                });
+              }
+              const scale = getScaleToFitContainer(originalBoundingBoxes, {
+                width: 140,
+                height: 115,
+              });
+              setListBoxScale(scale);
+              for (const node of selectedNodes) {
+                nodes.push({
+                  id: node.id,
+                  name: node.name,
+                  boundingBox: {
+                    width: node.width,
+                    height: node.height,
+                  },
+                  isolationScale: 1,
+                });
+              }
+              setRegisteredNodes(nodes);
+
+              const options: { option: string; label: string }[] = [];
+              nodes.forEach((node, index) => {
+                options.push({ option: String(index), label: node.name });
+              });
+              setMasterOptions(options);
+            }}
+          >
+            <Text
+              name="Load Selected Nodes"
+              fill="#FFF"
+              width={183}
+              height={31}
+              verticalAlignText="center"
+              horizontalAlignText="right"
+              fontFamily="Inter"
+              fontSize={18}
+            >
+              Load Selected Nodes
+            </Text>
+          </AutoLayout>
+        </>
       ) : (
         <PreviewPanel
           masterNodeIndex={masterNodeIndex}
@@ -71,90 +129,36 @@ function IsolationManager() {
           setRegisteredNodes={setRegisteredNodes}
         />
       )}
-      <AutoLayout
-        name="Frame 13"
-        direction="vertical"
-        spacing={10}
-        horizontalAlignItems="end"
-      >
-        <Text
-          name="Load Selected Nodes"
-          fill="#000"
-          width={183}
-          height={31}
-          verticalAlignText="center"
-          horizontalAlignText="right"
-          fontFamily="Inter"
-          fontSize={18}
-          onClick={() => {
-            const selectedNodes = figma.currentPage.selection.concat(); //複製
-            console.log(selectedNodes);
-            const nodes: NodeProperty[] = [];
-            const originalBoundingBoxes: { width: number; height: number }[] =
-              [];
-            for (const node of selectedNodes) {
-              originalBoundingBoxes.push({
-                width: node.width,
-                height: node.height,
-              });
-            }
-            const scale = getScaleToFitContainer(originalBoundingBoxes, {
-              width: 140,
-              height: 115,
-            });
-            setListBoxScale(scale);
-            for (const node of selectedNodes) {
-              nodes.push({
-                id: node.id,
-                name: node.name,
-                boundingBox: {
-                  width: node.width,
-                  height: node.height,
-                },
-                isolationScale: 1,
-              });
-            }
-            setRegisteredNodes(nodes);
 
-            const options: { option: string; label: string }[] = [];
-            nodes.forEach((node, index) => {
-              options.push({ option: String(index), label: node.name });
-            });
-            setMasterOptions(options);
-          }}
+      {registeredNodes.length == 0 ? (
+        <></>
+      ) : (
+        <AutoLayout
+          name="RegisteredNodesContainer"
+          fill="#FFF"
+          direction="vertical"
         >
-          Load Selected Nodes
-        </Text>
-        {registeredNodes.length == 0 ? (
-          <></>
-        ) : (
-          <AutoLayout
-            name="RegisteredNodesContainer"
-            fill="#FFF"
-            direction="vertical"
-          >
-            {(() => {
-              const rows: any[] = [];
-              registeredNodes.forEach((node, index) => {
-                let row = <></>;
-                row = (
-                  <NodeRow
-                    active={activeNodeIndex == index ? true : false}
-                    setActiveNodeIndex={setActiveNodeIndex}
-                    index={index}
-                    width={node.boundingBox.width * listBoxScale}
-                    height={node.boundingBox.height * listBoxScale}
-                    name={node.name}
-                    key={index}
-                  />
-                );
-                rows.push(row);
-              });
-              return rows;
-            })()}
-          </AutoLayout>
-        )}
-      </AutoLayout>
+          {(() => {
+            const rows: any[] = [];
+            registeredNodes.forEach((node, index) => {
+              let row = <></>;
+              row = (
+                <NodeRow
+                  active={activeNodeIndex == index ? true : false}
+                  setActiveNodeIndex={setActiveNodeIndex}
+                  index={index}
+                  width={node.boundingBox.width * listBoxScale}
+                  height={node.boundingBox.height * listBoxScale}
+                  name={node.name}
+                  key={index}
+                />
+              );
+              rows.push(row);
+            });
+            return rows;
+          })()}
+        </AutoLayout>
+      )}
     </AutoLayout>
   );
 }

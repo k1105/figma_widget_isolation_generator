@@ -1,8 +1,13 @@
 const { widget } = figma;
-const { AutoLayout, Text, Rectangle, Frame, useSyncedState, Input } = widget;
+const { AutoLayout, Text, useSyncedState, Input } = widget;
 
 import { getScaleToFitContainer } from "../../lib/getScaleToFitContainer";
+import { GenerateButton } from "./GenerateButton";
 import { PreviewRectangle } from "./PreviewRectangle";
+import { convertVariableToNumber } from "../../lib/convertVariableToNumber";
+import { validateExpression } from "../../lib/validateExpression";
+import { calcExpression } from "../../lib/calcExpression";
+import { formatFloat } from "../../lib/formatFloat";
 
 type NodeProperty = {
   id: string;
@@ -121,7 +126,7 @@ export function PreviewPanel({
         </Text>
         <Input
           name="value"
-          value={isolationUnitSize}
+          value={String(formatFloat(Number(isolationUnitSize), 2))}
           fill="#000"
           width={96}
           height={31}
@@ -129,7 +134,25 @@ export function PreviewPanel({
           fontFamily="Inter"
           fontSize={18}
           onTextEditEnd={(e) => {
-            setIsolationUnitSize(e.characters);
+            let res = e.characters;
+            console.log(res);
+            res = res.replace(/\ /g, ""); //空白文字を削除
+            console.log(res);
+            res = convertVariableToNumber(
+              res,
+              registeredNodes[masterNodeIndex].boundingBox.width,
+              registeredNodes[masterNodeIndex].boundingBox.height
+            );
+            console.log(res);
+            if (validateExpression(res)) {
+              console.log(res);
+              res = calcExpression(res);
+              console.log(res);
+              setIsolationUnitSize(res);
+            } else {
+              //@ts-ignore;
+              console.log("無効な入力です。");
+            }
             const newIsolationUnitSize = Number(isolationUnitSize);
             const boxes: { width: number; height: number }[] = [];
             for (const node of registeredNodes) {
@@ -213,33 +236,22 @@ export function PreviewPanel({
         fontFamily="Inter"
         fontSize={18}
       >
-        master: {registeredNodes[masterNodeIndex].boundingBox.width} x{" "}
-        {registeredNodes[masterNodeIndex].boundingBox.height} (px)
+        master:{" "}
+        {formatFloat(
+          Number(registeredNodes[masterNodeIndex].boundingBox.width),
+          2
+        )}{" "}
+        x{" "}
+        {formatFloat(
+          Number(registeredNodes[masterNodeIndex].boundingBox.height),
+          2
+        )}{" "}
+        (px)
       </Text>
-      <AutoLayout
-        name="Frame 14"
-        fill="#FFF"
-        stroke="#000"
-        spacing={10}
-        padding={{
-          vertical: 20,
-          horizontal: 167,
-        }}
-        width="fill-parent"
-        horizontalAlignItems="center"
-        verticalAlignItems="center"
-      >
-        <Text
-          name="Generate Isolation"
-          fill="#000"
-          verticalAlignText="center"
-          horizontalAlignText="center"
-          fontFamily="Inter"
-          fontSize={18}
-        >
-          Generate Isolation
-        </Text>
-      </AutoLayout>
+      <GenerateButton
+        registeredNodes={registeredNodes}
+        isolationUnitSize={Number(isolationUnitSize)}
+      />
     </AutoLayout>
   );
 }
